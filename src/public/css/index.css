@@ -1,0 +1,103 @@
+* {
+    box-sizing: border-box;
+}
+
+a{
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}
+
+.header {
+    max-width: 1230px;
+}
+
+.header-inner {
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+}
+
+.header-ttl {
+    color: #222;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.header-nav {
+    margin-left: auto;
+}
+
+.header-nav-list {
+    display: flex;
+}
+
+.header-nav-item:not(:first-child) {
+    margin-left: 40px;
+}
+
+.header-nav-item-link {
+    display: block;
+    color: #222;
+    height: 60px;
+    line-height: 60px;
+    font-weight: bold;
+}
+
+main {
+    background-color: #f4f4f4;
+    max-width: 1230px;
+}
+
+h2 {
+    margin: 0;
+}
+
+.greeting {
+    text-align: center;
+}
+
+.greeting-message {
+    font-size: 24px;
+    padding: 40px 0;
+}
+
+.attendance-grid {
+    justify-content: center;
+}
+
+.attendance-form {
+    display: flex;
+    justify-content: center;
+}
+
+.break-form {
+    display: flex;
+    justify-content: center;
+}
+
+.breakIn,
+.breakOut {
+    margin-bottom: 120px;
+}
+
+button {
+    margin: 15px;
+    width: 400px;
+    height: 150px;
+    outline: none;
+    border: none;
+    background-color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+footer {
+    max-width: 1230px;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+}
