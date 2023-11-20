@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\RegisteredUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,4 @@ use App\Http\Controllers\AttendanceController;
 
 Route::get('/', [AttendanceController::class, 'index']);
 Route::get('/login', [AttendanceController::class, 'login']);
+Route::get('/register', [RegisteredUserController::class, 'create']);
