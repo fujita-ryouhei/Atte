@@ -15,6 +15,16 @@
     </header>
 
     <main>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="register-group">
             <div class="register-ttl">
                 <h2>会員登録</h2>

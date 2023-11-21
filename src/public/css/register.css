@@ -32,6 +32,16 @@ main {
     max-width: 1230px;
 }
 
+.alert-danger {
+    padding: 10px;
+    background-color: rgb(255, 218, 218);
+}
+
+.alert-danger li {
+    list-style: none;
+    padding: 5px;
+}
+
 .register-group {
     text-align: center;
 }

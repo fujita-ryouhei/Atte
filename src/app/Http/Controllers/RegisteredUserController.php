@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Requests\RegisterRequest;
 
 class RegisteredUserController extends Controller
 {
@@ -12,14 +13,8 @@ class RegisteredUserController extends Controller
         return view('register');
     }
 
-    public function store(Request $request)
+    public function store(RegisterRequest $request)
     {
-        $this->validate($request,[
-            'name' => 'required',
-            'email' => 'email|required|unique:users',
-            'password' => 'required'
-        ]);
-
         $user = new User([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
