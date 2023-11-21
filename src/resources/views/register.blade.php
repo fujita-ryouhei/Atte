@@ -19,16 +19,17 @@
             <div class="register-ttl">
                 <h2>会員登録</h2>
             </div>
-            <form action="" method="get" class="register-form">
-                <input type="text" name="name" id="name" placeholder="名前">
-                <input type="email" name="email" id="email" placeholder="メールアドレス">
-                <input type="text" name="password" id="password" placeholder="パスワード">
-                <input type="text" name="password" id="password" placeholder="確認用パスワード">
+            <form action="/register" method="post" class="register-form">
+                @csrf
+                <input type="text" name="name" id="name" placeholder="名前" value="{{ old('name') }}">
+                <input type="email" name="email" id="email" placeholder="メールアドレス" value="{{ old('email') }}">
+                <input type="password" name="password" id="password" placeholder="パスワード">
+                <input type="password" name="password_confirmation" id="password" placeholder="確認用パスワード">
                 <button type="submit" class="register-button">会員登録</button>
             </form>
             <div class="login">
                 <p>アカウントをお持ちの方はこちらから</p>
-                <a href="/login" class="move-login">ログイン</a>
+                <a href="/signIn" class="move-login">ログイン</a>
             </div>
         </div>
     </main>

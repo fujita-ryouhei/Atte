@@ -19,9 +19,9 @@
             <div class="login-ttl">
                 <h2>ログイン</h2>
             </div>
-            <form action="" method="get" class="login-form">
-                <input type="email" name="email" id="email" placeholder="メールアドレス">
-                <input type="text" name="password" id="password" placeholder="パスワード">
+            <form action="/login" method="get" class="login-form">
+                <input type="email" name="email" id="email" placeholder="メールアドレス" value="{{ old('email') }}">
+                <input type="password" name="password" id="password" placeholder="パスワード">
                 <button type="submit" class="login-button">ログイン</button>
             </form>
             <div class="register">

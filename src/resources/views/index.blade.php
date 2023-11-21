@@ -13,9 +13,9 @@
             <h1 class="header-ttl">Atte</h1>
             <nav class="header-nav">
                 <ul class="header-nav-list">
-                    <li class="header-nav-item"><a href="#" class="header-nav-item-link">ホーム</a></li>
-                    <li class="header-nav-item"><a href="#" class="header-nav-item-link">日付一覧</a></li>
-                    <li class="header-nav-item"><a href="#" class="header-nav-item-link">ログアウト</a></li>
+                    <li class="header-nav-item"><a href="/" class="header-nav-item-link">ホーム</a></li>
+                    <li class="header-nav-item"><a href="/attendance" class="header-nav-item-link">日付一覧</a></li>
+                    <li class="header-nav-item"><a href="/logout" class="header-nav-item-link">ログアウト</a></li>
                 </ul>
             </nav>
         </div>
