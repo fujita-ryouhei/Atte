@@ -23,24 +23,53 @@
 
     <main>
         <div class="greeting">
-            <h2 class="greeting-message">Xさんお疲れ様です！</h2>
+            <h2 class="greeting-message">{{ $user->name }}さんお疲れ様です！</h2>
         </div>
         <div class="attendance-grid">
             <div class="attendance-form">
-                <form action="" method="post" class="punchIn">
-                    <button type="submit">勤務開始</button>
-                </form>
-                <form action="" method="post" class="punchOut">
-                    <button type="submit">勤務終了</button>
-                </form>
+                @if ($latestAttendance && !$latestAttendance->end_time)
+                    <button class="invalid">勤務開始</button>
+                @else
+                    <form action="/punchIn" method="post" class="punchIn">
+                    @csrf
+                        <button type="submit">勤務開始</button>
+                    </form>
+                @endif
+                @if (!$latestAttendance || $latestAttendance->end_time)
+                    <button class="invalid">勤務終了</button>
+                @else
+                    <form action="/punchOut" method="post" class="punchOut">
+                    @csrf
+                        <button type="submit">勤務終了</button>
+                    </form>
+                @endif
             </div>
             <div class="break-form">
-                <form action="" method="post" class="breakIn">
-                    <button type="submit">休憩開始</button>
-                </form>
-                <form action="" method="post" class="breakOut">
-                    <button type="submit">休憩終了</button>
-                </form>
+                @if ($latestAttendance && !$latestAttendance->end_time)
+                    @if ($latestAttendance && !$latestAttendance->rests->isEmpty() && !$latestAttendance->rests->last()->end_break)
+                        <button class="invalid breakIn">休憩開始</button>
+                    @else
+                        <form action="/breakIn" method="post" class="breakIn">
+                        @csrf
+                            <button type="submit">休憩開始</button>
+                        </form>
+                    @endif
+                @else
+                    <button class="invalid breakIn">休憩開始</button>
+                @endif
+                @if ($latestAttendance && !$latestAttendance->end_time)
+                    @if ($latestAttendance && !$latestAttendance->rests->isEmpty() && $latestAttendance->rests->last()->end_break)
+                        <button class="invalid breakOut">休憩終了</button>
+                    @else
+                        <form action="/breakOut" method="post" class="breakOut">
+                        @csrf
+                            <button type="submit">休憩終了</button>
+                        </form>
+                    @endif
+                @else
+                    <button class="invalid breakOut">休憩終了</button>
+                @endif
+
             </div>
         </div>
     </main>
