@@ -35,13 +35,17 @@
                         <button type="submit">勤務開始</button>
                     </form>
                 @endif
-                @if (!$latestAttendance || $latestAttendance->end_time)
-                    <button class="invalid">勤務終了</button>
+                @if ($latestAttendance && !$latestAttendance->end_time)
+                    @if ($latestAttendance && !$latestAttendance->rests->isEmpty() && !$latestAttendance->rests->last()->end_break)
+                        <button class="invalid">勤務終了</button>
+                    @else
+                        <form action="/punchOut" method="post" class="punchOut">
+                        @csrf
+                            <button type="submit">勤務終了</button>
+                        </form>
+                    @endif
                 @else
-                    <form action="/punchOut" method="post" class="punchOut">
-                    @csrf
-                        <button type="submit">勤務終了</button>
-                    </form>
+                    <button class="invalid">勤務終了</button>
                 @endif
             </div>
             <div class="break-form">
@@ -57,7 +61,7 @@
                 @else
                     <button class="invalid breakIn">休憩開始</button>
                 @endif
-                @if ($latestAttendance && !$latestAttendance->end_time)
+                @if ($latestAttendance && !$latestAttendance->end_time && !$latestAttendance->rests->isEmpty())
                     @if ($latestAttendance && !$latestAttendance->rests->isEmpty() && $latestAttendance->rests->last()->end_break)
                         <button class="invalid breakOut">休憩終了</button>
                     @else

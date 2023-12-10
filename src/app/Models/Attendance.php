@@ -38,4 +38,9 @@ class Attendance extends Model
     {
         return $this->hasMany(Rest::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

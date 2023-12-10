@@ -6,12 +6,30 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Models\Attendance;
 use App\Models\Rest;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
     public function index() {
         $user = Auth::user();
         $latestAttendance = Attendance::where('user_id', $user->id)->latest()->first();
+        $currentDate = Carbon::now();
+
+        if ($latestAttendance) {
+            $lastAttendanceDate = Carbon::parse($latestAttendance->start_time);
+
+            // 日付が異なる場合は新しい日の出勤情報を作成
+            if (!$lastAttendanceDate->isSameDay($currentDate)) {
+                //退勤処理
+                $latestAttendance->punchOut();
+                // 新しい日の出勤情報を作成
+                $newAttendance = new Attendance();
+                $newAttendance->user_id = auth()->id();
+                $newAttendance->start_time = Carbon::now();
+                $newAttendance->save();
+            }
+        }
         return view('index', ['latestAttendance' => $latestAttendance, 'user' => $user]);
     }
 
@@ -33,10 +51,6 @@ class AttendanceController extends Controller
         $user = Auth::user();
         $Attendance = Attendance::where('user_id', $user->id)->latest()->first();
 
-        if (!$Attendance || $Attendance->end_time) {
-            return redirect('/')->with('error', '出勤情報が見つからないか、既に退勤済みです。');
-        }
-
         $Attendance->punchOut();
         return redirect('/')->with('success', '退勤しました。');
     }
@@ -45,10 +59,6 @@ class AttendanceController extends Controller
     {
         $user = Auth::user();
         $Attendance = Attendance::where('user_id', $user->id)->latest()->first();
-
-        if (!$Attendance || $Attendance->end_time) {
-            return redirect('/')->with('error', '出勤情報が見つからないか、既に退勤済みです。');
-        }
 
         $break = new Rest();
         $break->Attendance_id = $Attendance->id;
@@ -61,17 +71,52 @@ class AttendanceController extends Controller
         $user = Auth::user();
         $Attendance = Attendance::where('user_id', $user->id)->latest()->first();
 
-        if (!$Attendance || $Attendance->end_time) {
-            return redirect('/')->with('error', '出勤情報が見つからないか、既に退勤済みです。');
-        }
-
         $break = Rest::where('Attendance_id', $Attendance->id)->latest()->first();
 
-    if (!$break || $break->break_end) {
-        return redirect('/')->with('error', '休憩情報が見つからないか、既に休憩終了済みです。');
+        $break->breakOut();
+        $break->calculateAndSaveDuration();
+        return redirect('/')->with('success', '休憩を終了しました。');
     }
 
-        $break->breakOut();
-        return redirect('/')->with('success', '休憩を終了しました。');
+    public function attendance($today = null)
+    {
+        // $dates = Attendance::with('user')
+        // ->leftJoin('rests', 'attendances.id', '=', 'rests.attendance_id')
+        // ->leftJoin('users', 'users.id', '=', 'attendances.user_id')
+        // ->select(
+        //     'attendances.start_time'
+        // )
+        // ->groupBy('attendances.start_time')
+        // ->paginate(1, ["*"], 'datePage');
+
+        if ($today){
+            $dates = $today;
+        }else{
+            $dates = date("Y-m-d");
+        }
+
+        DB::enableQueryLog();
+        $attendances = Attendance::with('user')
+        ->join('rests', 'attendances.id', '=', 'rests.attendance_id')
+        ->Join('users', 'users.id', '=', 'attendances.user_id')
+        ->select(
+            'users.name',
+            'attendances.start_time',
+            'attendances.end_time',
+            DB::raw('SUM(rests.rest_duration) as total_rest'),
+            DB::raw('(SUM(UNIX_TIMESTAMP(attendances.end_time) - UNIX_TIMESTAMP(attendances.start_time)) - SUM(rests.rest_duration)) as working_hours')
+        )
+        ->whereDate('attendances.created_at', $dates)
+        ->groupBy('users.id', 'attendances.id')
+        ->orderBy('users.name');
+        // ->paginate(5, ["*"], 'attendancePage');
+
+        // dd(DB::getQueryLog());
+
+        $attendances->each(function ($attendance) {
+            $attendance->total_rest = $attendance->total_rest;
+        });
+
+        return view('attendance', ['dates' => $dates, 'attendances' => $attendances]);
     }
 }

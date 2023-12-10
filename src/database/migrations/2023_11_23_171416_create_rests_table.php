@@ -15,13 +15,15 @@ class CreateRestsTable extends Migration
     {
         Schema::create('rests', function (Blueprint $table) {
             $table->id();
+            
             $table->unsignedBigInteger('Attendance_id');
             $table->timestamp('start_break')->nullable();
             $table->timestamp('end_break')->nullable();
+            $table->integer('rest_duration')->nullable(); // 休憩時間（秒単位など）
             $table->timestamps();
-
-            // 外部キー制約
-            $table->foreign('Attendance_id')->references('id')->on('attendances')->onDelete('cascade');
+            
+            
+            $table->foreign('Attendance_id')->references('id')->on('attendances');
         });
     }
 

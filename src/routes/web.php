@@ -30,3 +30,4 @@ Route::post('/punchIn', [AttendanceController::class, 'punchIn']);
 Route::post('/punchOut', [AttendanceController::class, 'punchOut']);
 Route::post('/breakIn', [AttendanceController::class, 'breakIn']);
 Route::post('/breakOut', [AttendanceController::class, 'breakOut']);
+Route::get('/attendance', [AttendanceController::class, 'attendance']);
