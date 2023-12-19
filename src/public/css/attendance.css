@@ -56,7 +56,32 @@ main {
     background-color: #f4f4f4;
     max-width: 1230px;
     text-align: center;
-    
+}
+
+.days {
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.sumDays {
+    margin: 0 30px;
+}
+
+.subDay {
+    border: 0.2px solid rgb(53, 39, 255);
+    padding: 0 15px;
+    background-color: #ffffff;
+    color: rgb(53, 39,255);
+}
+
+.addDay {
+    border: 0.2px solid rgb(53, 39, 255);
+    padding: 0 15px;
+    background-color: #ffffff;
+    color: rgb(53, 39, 255);
 }
 
 table {

@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Rest;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Route;
 
 class AttendanceController extends Controller
 {
@@ -16,7 +17,8 @@ class AttendanceController extends Controller
         $latestAttendance = Attendance::where('user_id', $user->id)->latest()->first();
         $currentDate = Carbon::now();
 
-        if ($latestAttendance) {
+        // 前日の勤怠が終了していない場合
+        if ($latestAttendance && !$latestAttendance->end_time) {
             $lastAttendanceDate = Carbon::parse($latestAttendance->start_time);
 
             // 日付が異なる場合は新しい日の出勤情報を作成
@@ -78,16 +80,45 @@ class AttendanceController extends Controller
         return redirect('/')->with('success', '休憩を終了しました。');
     }
 
-    public function attendance($today = null)
+    public function attendance($today = null, Request $request)
     {
-        // $dates = Attendance::with('user')
-        // ->leftJoin('rests', 'attendances.id', '=', 'rests.attendance_id')
-        // ->leftJoin('users', 'users.id', '=', 'attendances.user_id')
-        // ->select(
-        //     'attendances.start_time'
-        // )
-        // ->groupBy('attendances.start_time')
-        // ->paginate(1, ["*"], 'datePage');
+        if ($today){
+            $dates = $today;
+        }else{
+            $dates = date("Y-m-d");
+        }
+
+        $attendances = Attendance::with('user')
+            ->join('rests', 'attendances.id', '=', 'rests.attendance_id')
+            ->join('users', 'users.id', '=', 'attendances.user_id')
+            ->select(
+                'users.name',
+                'attendances.start_time',
+                'attendances.end_time',
+                DB::raw('SUM(COALESCE(rests.rest_duration, 0)) as total_rest'),
+                DB::raw('(UNIX_TIMESTAMP(attendances.end_time) - UNIX_TIMESTAMP(attendances.start_time)) - SUM(COALESCE(rests.rest_duration, 0)) as working_hours')
+            )
+            ->whereDate('attendances.created_at', $dates)
+            ->groupBy('users.id', 'attendances.id') // users.idとattendances.idで関連するデータをグループ化
+            ->orderBy('users.name') // users.nameを基準にソート
+            ->paginate(5);
+
+        return view('attendance', ['dates' => $dates, 'attendances' => $attendances]);
+    }
+
+    /**
+     * 前日の勤怠取得API
+     * <ボタンを押したとき、日付を一日減らして値を返す
+     * @param $dates
+     * return $today, $attendances
+     */
+    public function subDay(Request $request)
+    {
+        $dates = $request->only('dates')['dates'];
+
+        $carbonDate = Carbon::parse($dates);
+
+        $today = $carbonDate->subDay()->format("Y-m-d");
 
         if ($today){
             $dates = $today;
@@ -95,28 +126,59 @@ class AttendanceController extends Controller
             $dates = date("Y-m-d");
         }
 
-        DB::enableQueryLog();
         $attendances = Attendance::with('user')
-        ->join('rests', 'attendances.id', '=', 'rests.attendance_id')
-        ->Join('users', 'users.id', '=', 'attendances.user_id')
-        ->select(
-            'users.name',
-            'attendances.start_time',
-            'attendances.end_time',
-            DB::raw('SUM(rests.rest_duration) as total_rest'),
-            DB::raw('(SUM(UNIX_TIMESTAMP(attendances.end_time) - UNIX_TIMESTAMP(attendances.start_time)) - SUM(rests.rest_duration)) as working_hours')
-        )
-        ->whereDate('attendances.created_at', $dates)
-        ->groupBy('users.id', 'attendances.id')
-        ->orderBy('users.name');
-        // ->paginate(5, ["*"], 'attendancePage');
+            ->join('rests', 'attendances.id', '=', 'rests.attendance_id')
+            ->join('users', 'users.id', '=', 'attendances.user_id')
+            ->select(
+                'users.name',
+                'attendances.start_time',
+                'attendances.end_time',
+                DB::raw('SUM(COALESCE(rests.rest_duration, 0)) as total_rest'),
+                DB::raw('(UNIX_TIMESTAMP(attendances.end_time) - UNIX_TIMESTAMP(attendances.start_time)) - SUM(COALESCE(rests.rest_duration, 0)) as working_hours')
+            )
+            ->whereDate('attendances.created_at', $dates)
+            ->groupBy('users.id', 'attendances.id') // users.idとattendances.idで関連するデータをグループ化
+            ->orderBy('users.name') // users.nameを基準にソート
+            ->paginate(5);
 
-        // dd(DB::getQueryLog());
+        return view('attendance', ['dates' => $today, 'attendances' => $attendances]);
+    }
 
-        $attendances->each(function ($attendance) {
-            $attendance->total_rest = $attendance->total_rest;
-        });
+    /**
+     * 翌日の勤怠取得API
+     * >ボタンを押したとき、日付を一日増やして値を返す
+     * @param $dates
+     * return $today, $attendances
+     */
+    public function addDay(Request $request)
+    {
+        $dates = $request->only('dates')['dates'];
 
-        return view('attendance', ['dates' => $dates, 'attendances' => $attendances]);
+        $carbonDate = Carbon::parse($dates);
+
+        $today = $carbonDate->addDay()->format("Y-m-d");
+
+        if ($today){
+            $dates = $today;
+        }else{
+            $dates = date("Y-m-d");
+        }
+
+        $attendances = Attendance::with('user')
+            ->join('rests', 'attendances.id', '=', 'rests.attendance_id')
+            ->join('users', 'users.id', '=', 'attendances.user_id')
+            ->select(
+                'users.name',
+                'attendances.start_time',
+                'attendances.end_time',
+                DB::raw('SUM(COALESCE(rests.rest_duration, 0)) as total_rest'),
+                DB::raw('(UNIX_TIMESTAMP(attendances.end_time) - UNIX_TIMESTAMP(attendances.start_time)) - SUM(COALESCE(rests.rest_duration, 0)) as working_hours')
+            )
+            ->whereDate('attendances.created_at', $dates)
+            ->groupBy('users.id', 'attendances.id') // users.idとattendances.idで関連するデータをグループ化
+            ->orderBy('users.name') // users.nameを基準にソート
+            ->paginate(5);
+
+        return view('attendance', ['dates' => $today, 'attendances' => $attendances]);
     }
 }

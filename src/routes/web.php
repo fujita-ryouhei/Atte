@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\AuthenticatedSessionController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,13 +17,13 @@ use App\Http\Controllers\AuthenticatedSessionController;
 |
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['web', 'auth',])->group(function () {
     Route::get('/', [AttendanceController::class, 'index']);
 });
 Route::group(['middleware' => 'guest'], function(){
     Route::get('/signIn', [AttendanceController::class, 'login'])->name('signIn');
-    Route::get('/register', [RegisteredUserController::class, 'create']);
 });
+Route::get('/register', [RegisteredUserController::class, 'create']);
 Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::get('/login', [AuthenticatedSessionController::class, 'store']);
 Route::get('/logout', [AuthenticatedSessionController::class, 'destroy']);
@@ -31,3 +32,5 @@ Route::post('/punchOut', [AttendanceController::class, 'punchOut']);
 Route::post('/breakIn', [AttendanceController::class, 'breakIn']);
 Route::post('/breakOut', [AttendanceController::class, 'breakOut']);
 Route::get('/attendance', [AttendanceController::class, 'attendance']);
+Route::post('/subDay', [AttendanceController::class, 'subDay']);
+Route::post('/addDay', [AttendanceController::class, 'addDay']);

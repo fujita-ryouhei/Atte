@@ -23,7 +23,19 @@
     </header>
 
     <main>
-        {{ $dates }}
+        <div class="days">
+            <form action="/subDay" method="post" class="sumDays">
+                @csrf
+                <input type="hidden" name="dates" value="{{ $dates }}">
+                <button type="submit" class="subDay"><</button>
+            </form>
+            {{ $dates }}
+            <form action="/addDay" method="post" class="sumDays">
+                @csrf
+                <input type="hidden" name="dates" value="{{ $dates }}">
+                <button type="submit" class="addDay">></button>
+            </form>
+        </div>
         <table>
             <tr>
                 <th>名前</th>
@@ -44,15 +56,15 @@
                     {{ \Carbon\Carbon::parse($attendance->end_time)->format('H:i:s') }}
                 </td>
                 <td>
-                    {{ gmdate('H:i:s', $attendance->total_rest) }}
+                    {{ gmdate('H:i:s', ($attendance->total_rest)) }}
                 </td>
                 <td>
-                    {{ gmdate('H:i:s', $attendance->working_hours) }}
+                    {{ gmdate('H:i:s', ($attendance->working_hours)) }}
                 </td>
             </tr>
             @endforeach
         </table>
-        {{-- $attendances->links() --}}
+        {{ $attendances->links() }}
     </main>
 
     <footer>
