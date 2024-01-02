@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Auth;
+use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Rest;
 use Illuminate\Support\Facades\DB;
@@ -180,5 +181,32 @@ class AttendanceController extends Controller
             ->paginate(5);
 
         return view('attendance', ['dates' => $today, 'attendances' => $attendances]);
+    }
+
+    public function users()
+    {
+        // 現在の日付を取得
+        $today = Carbon::today();
+
+        // 1週間分の日付を生成
+        $weekDates = [];
+        for ($i = 0; $i < 7; $i++) {
+            $weekDates[] = $today->copy()->addDays($i);
+        }
+
+        // ユーザー一覧を取得
+        $userName = User::paginate(5);
+        $users = User::all();
+
+        // ユーザーごとに1週間分の勤怠を取得
+        $attendanceData = [];
+        foreach ($users as $user) {
+            $attendanceData[$user->id] = Attendance::where('user_id', $user->id)
+                ->where('created_at', '>=', $today)
+                ->where('created_at', '<', $today->copy()->addDays(7))
+                ->get();
+        }
+
+        return view('users', ['users' => $users, 'userName' => $userName, 'weekDates' => $weekDates, 'attendanceData' => $attendanceData]);
     }
 }

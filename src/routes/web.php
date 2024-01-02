@@ -34,3 +34,4 @@ Route::post('/breakOut', [AttendanceController::class, 'breakOut']);
 Route::get('/attendance', [AttendanceController::class, 'attendance']);
 Route::post('/subDay', [AttendanceController::class, 'subDay']);
 Route::post('/addDay', [AttendanceController::class, 'addDay']);
+Route::get('/users', [AttendanceController::class, 'users']);
